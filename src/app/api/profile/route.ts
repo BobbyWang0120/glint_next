@@ -4,7 +4,7 @@
 import { NextResponse } from 'next/server'
 import { createProtectedHandler } from '../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
-import { uploadImage } from '../../../lib/cloudinary'
+import { uploadAvatar } from '../../../lib/supabase'
 
 // 获取个人信息
 export const GET = (request: Request) => createProtectedHandler(async (decoded, request) => {
@@ -37,11 +37,8 @@ export const POST = (request: Request) => createProtectedHandler(async (decoded,
 
     let avatarUrl = null
     if (avatarFile) {
-      // 将File对象转换为Buffer
-      const buffer = Buffer.from(await avatarFile.arrayBuffer())
-      
-      // 上传到Cloudinary
-      avatarUrl = await uploadImage(buffer)
+      // 上传到Supabase Storage
+      avatarUrl = await uploadAvatar(avatarFile)
     }
 
     // 使用upsert确保即使用户资料不存在也能创建
