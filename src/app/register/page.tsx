@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function RegisterPage() {
@@ -26,6 +26,22 @@ export default function RegisterPage() {
 
   // 加载状态
   const [isLoading, setIsLoading] = useState(false)
+
+  // 组件挂载状态
+  const [mounted, setMounted] = useState(true)
+
+  // 组件卸载时清理
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
+
+  // 安全的状态更新函数
+  const safeSetState = useCallback((callback: () => void) => {
+    if (mounted) {
+      callback()
+    }
+  }, [mounted])
 
   // 表单验证函数
   const validateForm = () => {
@@ -49,7 +65,7 @@ export default function RegisterPage() {
       isValid = false
     }
 
-    setErrors(newErrors)
+    safeSetState(() => setErrors(newErrors))
     return isValid
   }
 
@@ -61,8 +77,10 @@ export default function RegisterPage() {
       return
     }
 
-    setIsLoading(true)
-    setErrors({ email: '', password: '', submit: '' })
+    safeSetState(() => {
+      setIsLoading(true)
+      setErrors({ email: '', password: '', submit: '' })
+    })
 
     try {
       const response = await fetch('/api/register', {
@@ -77,15 +95,18 @@ export default function RegisterPage() {
         throw new Error(data.message || 'Registration failed')
       }
 
-      // 注册成功，重定向到首页
-      router.push('/')
+      if (mounted) {
+        router.push('/')
+      }
     } catch (error) {
-      setErrors(prev => ({
-        ...prev,
-        submit: error instanceof Error ? error.message : 'An error occurred during registration'
-      }))
+      safeSetState(() => {
+        setErrors(prev => ({
+          ...prev,
+          submit: error instanceof Error ? error.message : 'An error occurred during registration'
+        }))
+      })
     } finally {
-      setIsLoading(false)
+      safeSetState(() => setIsLoading(false))
     }
   }
 
