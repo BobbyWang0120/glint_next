@@ -26,6 +26,6 @@ model UserProfile {
   user        User     @relation(fields: [userId], references: [id])
   name        String?
   phone       String?
-  avatar      String?  // URL
+  avatar      String?  // Supabase Storage URL
   bio         String?  // 简介
 }
