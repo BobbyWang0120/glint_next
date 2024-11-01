@@ -6,9 +6,11 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   
   // 表单状态
   const [formData, setFormData] = useState({
@@ -63,13 +65,32 @@ export default function LoginPage() {
     setIsLoading(true)
     setErrors({ email: '', password: '', submit: '' })
 
-    // 模拟登录请求延迟
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
 
-    // TODO: 实现实际的登录逻辑
-    console.log('Login attempt with:', formData)
-    
-    setIsLoading(false)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed')
+      }
+
+      // 保存认证信息
+      login(data.data.token, data.data.user)
+
+      // 重定向到首页
+      router.push('/')
+    } catch (error) {
+      setErrors(prev => ({
+        ...prev,
+        submit: error instanceof Error ? error.message : 'An error occurred during login'
+      }))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
