@@ -39,13 +39,13 @@ export default function RegisterPage() {
     // 验证邮箱格式
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(formData.email)) {
-      newErrors.email = '请输入有效的邮箱地址'
+      newErrors.email = 'Please enter a valid email address'
       isValid = false
     }
 
     // 验证密码长度（最少6位）
     if (formData.password.length < 6) {
-      newErrors.password = '密码长度至少为6位'
+      newErrors.password = 'Password must be at least 6 characters long'
       isValid = false
     }
 
@@ -74,15 +74,15 @@ export default function RegisterPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.message || '注册失败')
+        throw new Error(data.message || 'Registration failed')
       }
 
-      // 注册成功，重定向到首页或登录页
+      // 注册成功，重定向到首页
       router.push('/')
     } catch (error) {
       setErrors(prev => ({
         ...prev,
-        submit: error instanceof Error ? error.message : '注册过程中发生错误'
+        submit: error instanceof Error ? error.message : 'An error occurred during registration'
       }))
     } finally {
       setIsLoading(false)
@@ -93,7 +93,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          创建新账号
+          Create New Account
         </h2>
       </div>
 
@@ -103,7 +103,7 @@ export default function RegisterPage() {
             {/* 邮箱输入框 */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                邮箱地址
+                Email Address
               </label>
               <div className="mt-1">
                 <input
@@ -128,7 +128,7 @@ export default function RegisterPage() {
             {/* 密码输入框 */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                密码
+                Password
               </label>
               <div className="mt-1">
                 <input
@@ -153,7 +153,7 @@ export default function RegisterPage() {
             {/* 用户类型选择 */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                用户类型
+                User Type
               </label>
               <div className="mt-2 space-y-4">
                 <div className="flex items-center">
@@ -167,7 +167,7 @@ export default function RegisterPage() {
                     disabled={isLoading}
                   />
                   <label htmlFor="role-seeker" className="ml-3 block text-sm font-medium text-gray-700">
-                    求职者
+                    Job Seeker
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -181,7 +181,7 @@ export default function RegisterPage() {
                     disabled={isLoading}
                   />
                   <label htmlFor="role-employer" className="ml-3 block text-sm font-medium text-gray-700">
-                    招聘者
+                    Employer
                   </label>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export default function RegisterPage() {
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                 disabled={isLoading}
               >
-                {isLoading ? '注册中...' : '注册'}
+                {isLoading ? 'Registering...' : 'Register'}
               </button>
             </div>
           </form>

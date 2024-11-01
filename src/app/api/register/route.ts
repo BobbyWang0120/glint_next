@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     if (!email || !password || !role) {
       return NextResponse.json({
         success: false,
-        message: '请提供所有必需的信息'
+        message: 'Please provide all required information'
       }, { status: 400 })
     }
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     if (!emailRegex.test(email)) {
       return NextResponse.json({
         success: false,
-        message: '邮箱格式无效'
+        message: 'Invalid email format'
       }, { status: 400 })
     }
 
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     if (password.length < 6) {
       return NextResponse.json({
         success: false,
-        message: '密码长度至少为6位'
+        message: 'Password must be at least 6 characters long'
       }, { status: 400 })
     }
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     if (!['seeker', 'employer'].includes(role)) {
       return NextResponse.json({
         success: false,
-        message: '无效的用户类型'
+        message: 'Invalid user type'
       }, { status: 400 })
     }
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     if (existingUser) {
       return NextResponse.json({
         success: false,
-        message: '该邮箱已被注册'
+        message: 'This email is already registered'
       }, { status: 400 })
     }
 
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     // 返回成功响应
     return NextResponse.json({
       success: true,
-      message: '注册成功',
+      message: 'Registration successful',
       data: {
         id: newUser.id,
         email: newUser.email,
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     console.error('注册失败:', error)
     return NextResponse.json({
       success: false,
-      message: '注册过程中发生错误'
+      message: 'An error occurred during registration'
     }, { status: 500 })
   }
 }
