@@ -3,10 +3,10 @@
  */
 import { NextResponse } from 'next/server'
 import { createProtectedHandler } from '../../../lib/auth'
-import { prisma } from '../../../lib/prisma'
+import { prisma } from '../../../../lib/prisma'
 
 // 获取个人信息
-export const GET = createProtectedHandler(async (decoded) => {
+export const GET = (request: Request) => createProtectedHandler(async (decoded, request) => {
   try {
     const profile = await prisma.userProfile.findUnique({
       where: { userId: decoded.userId }
@@ -23,10 +23,10 @@ export const GET = createProtectedHandler(async (decoded) => {
       message: 'Failed to fetch profile'
     }, { status: 500 })
   }
-})
+}, request)
 
 // 更新个人信息
-export const POST = createProtectedHandler(async (decoded, request) => {
+export const POST = (request: Request) => createProtectedHandler(async (decoded, request) => {
   try {
     const formData = await request.formData()
     const name = formData.get('name') as string
@@ -71,4 +71,4 @@ export const POST = createProtectedHandler(async (decoded, request) => {
       message: 'Failed to update profile'
     }, { status: 500 })
   }
-})
+}, request)
