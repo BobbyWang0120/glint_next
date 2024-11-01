@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { useState, FormEvent, useEffect, useCallback } from 'react'
+import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function RegisterPage() {
@@ -26,22 +26,6 @@ export default function RegisterPage() {
 
   // 加载状态
   const [isLoading, setIsLoading] = useState(false)
-
-  // 组件挂载状态
-  const [mounted, setMounted] = useState(true)
-
-  // 组件卸载时清理
-  useEffect(() => {
-    setMounted(true)
-    return () => setMounted(false)
-  }, [])
-
-  // 安全的状态更新函数
-  const safeSetState = useCallback((callback: () => void) => {
-    if (mounted) {
-      callback()
-    }
-  }, [mounted])
 
   // 表单验证函数
   const validateForm = () => {
@@ -65,7 +49,7 @@ export default function RegisterPage() {
       isValid = false
     }
 
-    safeSetState(() => setErrors(newErrors))
+    setErrors(newErrors)
     return isValid
   }
 
@@ -77,13 +61,11 @@ export default function RegisterPage() {
       return
     }
 
-    safeSetState(() => {
-      setIsLoading(true)
-      setErrors({ email: '', password: '', submit: '' })
-    })
+    setIsLoading(true)
+    setErrors({ email: '', password: '', submit: '' })
 
     try {
-      const response = await fetch('/api/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -95,18 +77,15 @@ export default function RegisterPage() {
         throw new Error(data.message || 'Registration failed')
       }
 
-      if (mounted) {
-        router.push('/')
-      }
+      // 注册成功，重定向到登录页面
+      router.push('/login')
     } catch (error) {
-      safeSetState(() => {
-        setErrors(prev => ({
-          ...prev,
-          submit: error instanceof Error ? error.message : 'An error occurred during registration'
-        }))
-      })
+      setErrors(prev => ({
+        ...prev,
+        submit: error instanceof Error ? error.message : 'An error occurred during registration'
+      }))
     } finally {
-      safeSetState(() => setIsLoading(false))
+      setIsLoading(false)
     }
   }
 
