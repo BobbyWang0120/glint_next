@@ -4,6 +4,7 @@
 import { NextResponse } from 'next/server'
 import { createProtectedHandler } from '../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
+import { uploadImage } from '../../../lib/cloudinary'
 
 // 获取个人信息
 export const GET = (request: Request) => createProtectedHandler(async (decoded, request) => {
@@ -32,14 +33,15 @@ export const POST = (request: Request) => createProtectedHandler(async (decoded,
     const name = formData.get('name') as string
     const phone = formData.get('phone') as string
     const bio = formData.get('bio') as string
-    const avatar = formData.get('avatar') as Blob | null
+    const avatarFile = formData.get('avatar') as File | null
 
     let avatarUrl = null
-    if (avatar) {
-      // TODO: 实现文件上传逻辑
-      // 这里应该将文件上传到云存储服务
-      // avatarUrl = await uploadFile(avatar)
-      avatarUrl = '/placeholder-avatar.jpg' // 临时占位
+    if (avatarFile) {
+      // 将File对象转换为Buffer
+      const buffer = Buffer.from(await avatarFile.arrayBuffer())
+      
+      // 上传到Cloudinary
+      avatarUrl = await uploadImage(buffer)
     }
 
     // 使用upsert确保即使用户资料不存在也能创建
