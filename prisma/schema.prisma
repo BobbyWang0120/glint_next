@@ -16,4 +16,16 @@ model User {
   password  String
   role      String   // "seeker"或"employer"
   createdAt DateTime @default(now())
+  profile   UserProfile?
+}
+
+// 用户资料模型
+model UserProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id])
+  name        String?
+  phone       String?
+  avatar      String?  // URL
+  bio         String?  // 简介
 }
