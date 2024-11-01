@@ -16,7 +16,7 @@ interface UserProfile {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, token } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [formData, setFormData] = useState<UserProfile>({
@@ -31,7 +31,11 @@ export default function ProfilePage() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const response = await fetch('/api/profile')
+        const response = await fetch('/api/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
         const data = await response.json()
         
         if (response.ok && data.success) {
@@ -50,10 +54,10 @@ export default function ProfilePage() {
       }
     }
 
-    if (user) {
+    if (user && token) {
       loadProfile()
     }
-  }, [user])
+  }, [user, token])
 
   // 处理头像上传
   const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -95,6 +99,9 @@ export default function ProfilePage() {
 
       const response = await fetch('/api/profile', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formDataToSend
       })
 
