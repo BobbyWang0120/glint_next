@@ -105,6 +105,11 @@ export default function ProfilePage() {
       }
 
       setSuccess('个人信息更新成功')
+      
+      // 更新表单数据
+      if (data.data.avatar) {
+        setFormData(prev => ({ ...prev, avatar: data.data.avatar }))
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : '更新失败')
     } finally {
