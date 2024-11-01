@@ -3,6 +3,7 @@
  */
 import { NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/prisma'
+import bcrypt from 'bcryptjs'
 
 export async function POST(request: Request) {
   try {
@@ -53,11 +54,15 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
+    // 对密码进行加密
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
+
     // 创建新用户
     const newUser = await prisma.user.create({
       data: {
         email,
-        password, // 注意：实际应用中应该对密码进行加密
+        password: hashedPassword, // 存储加密后的密码
         role
       }
     })
