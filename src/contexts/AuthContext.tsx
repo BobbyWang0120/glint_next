@@ -58,6 +58,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         })
       } catch (error) {
         console.error('Failed to parse user data:', error)
+        // 如果解析失败，清除localStorage
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
         setAuthState(prev => ({ ...prev, isLoading: false }))
       }
     } else {
