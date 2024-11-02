@@ -4,6 +4,7 @@
  */
 import MobileNav from '@/components/MobileNav'
 import CompanyLogos from '@/components/CompanyLogos'
+import CompanyIcon from '@/components/CompanyIcon'
 
 export default function Home() {
   const popularTags = ["Software Engineer", "Product Manager", "Data Scientist", "Remote Jobs"];
@@ -12,26 +13,26 @@ export default function Home() {
     {
       title: "Senior Software Engineer",
       company: "Google",
-      logo: "G",
       location: "San Francisco, CA",
       type: ["Full-time", "Remote"],
-      salary: "$150K - $200K"
+      salary: "$150K - $200K",
+      description: "Join our team to build the next generation of search technology"
     },
     {
       title: "Product Manager",
       company: "Microsoft",
-      logo: "M",
       location: "Seattle, WA",
       type: ["Full-time", "Hybrid"],
-      salary: "$130K - $180K"
+      salary: "$130K - $180K",
+      description: "Lead product strategy for Microsoft's cloud services"
     },
     {
       title: "UI/UX Designer",
       company: "Apple",
-      logo: "A",
       location: "Cupertino, CA",
       type: ["Full-time", "On-site"],
-      salary: "$120K - $160K"
+      salary: "$120K - $160K",
+      description: "Create beautiful and intuitive user experiences for Apple products"
     }
   ];
 
@@ -119,17 +120,20 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {featuredJobs.map((job) => (
-              <div key={`${job.company}-${job.title}`} className="job-card">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
+              <div key={`${job.company}-${job.title}`} className="job-card group">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
+                      {job.title}
+                    </h3>
                     <p className="text-gray-600">{job.company}</p>
                   </div>
-                  <div className="company-logo">
-                    {job.logo}
+                  <div className="flex-shrink-0 ml-4 transform group-hover:scale-110 transition-transform">
+                    <CompanyIcon company={job.company} />
                   </div>
                 </div>
-                <div className="space-y-2">
+                <p className="text-gray-600 mb-4">{job.description}</p>
+                <div className="space-y-3">
                   <div className="flex items-center text-gray-500">
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -147,7 +151,7 @@ export default function Home() {
                     <span className="font-medium">{job.salary}</span>
                   </div>
                 </div>
-                <button className="mt-4 w-full py-2 text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors">
+                <button className="mt-6 w-full py-2.5 text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
                   Apply Now
                 </button>
               </div>
