@@ -60,62 +60,87 @@ export const onAuthStateChange = (callback: (event: any, session: any) => void) 
  * 登录方法
  */
 export const signIn = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-  
-  if (error) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    
+    if (error) {
+      // 处理具体的错误类型
+      if (error.message === 'Invalid login credentials') {
+        throw new Error('邮箱或密码错误')
+      } else if (error.message === 'Email not confirmed') {
+        throw new Error('请先确认邮箱后再登录')
+      }
+      throw error
+    }
+    
+    return data
+  } catch (error) {
+    console.error('登录失败:', error)
     throw error
   }
-  
-  return data
 }
 
 /**
  * 注册方法
  */
 export const signUp = async (email: string, password: string, role: UserRole) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        role: role,
-      }
-    }
-  })
-  
-  if (error) {
-    throw error
-  }
-
-  // 如果注册成功，创建用户记录
-  if (data.user) {
-    const { error: profileError } = await supabase
-      .from('users')
-      .insert([
-        {
-          id: data.user.id,
-          email: data.user.email,
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
           role: role,
         }
-      ])
-
-    if (profileError) {
-      throw profileError
+      }
+    })
+    
+    if (error) {
+      // 处理具体的错误类型
+      if (error.message.includes('already registered')) {
+        throw new Error('该邮箱已被注册')
+      }
+      throw error
     }
+
+    // 如果注册成功，创建用户记录
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert([
+          {
+            id: data.user.id,
+            email: data.user.email,
+            role: role,
+          }
+        ])
+
+      if (profileError) {
+        console.error('创建用户记录失败:', profileError)
+      }
+    }
+    
+    return data
+  } catch (error) {
+    console.error('注册失败:', error)
+    throw error
   }
-  
-  return data
 }
 
 /**
  * 退出登录方法
  */
 export const signOut = async () => {
-  const { error } = await supabase.auth.signOut()
-  if (error) {
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      throw error
+    }
+  } catch (error) {
+    console.error('退出登录失败:', error)
     throw error
   }
 }

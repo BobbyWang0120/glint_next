@@ -1,6 +1,5 @@
 /**
  * 注册页面
- * 包含角色选择：求职者或企业
  */
 'use client'
 
@@ -71,7 +70,7 @@ export default function RegisterPage() {
                 {email}
               </p>
               <p className="text-sm text-gray-600 mb-8">
-                Click the link in the email to confirm your account and complete your profile.
+                Click the link in the email to confirm your account.
               </p>
               <Link
                 href="/login"

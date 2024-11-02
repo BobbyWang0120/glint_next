@@ -23,13 +23,8 @@ export default function LoginPage() {
       await signIn(email, password)
     } catch (err: any) {
       console.error('登录错误:', err)
-      if (err.message === '邮箱或密码错误') {
-        setError('邮箱或密码错误，请重试')
-      } else if (err.message === '请先确认邮箱后再登录') {
-        setError('请先点击邮箱中的确认链接后再登录')
-      } else {
-        setError('登录失败，请稍后重试')
-      }
+      // 显示具体的错误信息
+      setError(err.message || '登录失败，请稍后重试')
     } finally {
       setLoading(false)
     }

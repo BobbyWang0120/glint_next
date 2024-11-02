@@ -72,13 +72,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push('/')
       }
     } catch (error) {
-      if (error instanceof AuthError) {
-        if (error.message === 'Invalid login credentials') {
-          throw new Error('邮箱或密码错误')
-        } else if (error.message === 'Email not confirmed') {
-          throw new Error('请先确认邮箱后再登录')
-        }
-      }
+      console.error('登录错误:', error)
+      // 直接抛出错误，让调用者处理
       throw error
     }
   }
@@ -100,11 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push(role === 'SEEKER' ? '/onboarding/seeker' : '/onboarding/company')
       }
     } catch (error) {
-      if (error instanceof AuthError) {
-        if (error.message.includes('already registered')) {
-          throw new Error('User already registered')
-        }
-      }
+      console.error('注册错误:', error)
+      // 直接抛出错误，让调用者处理
       throw error
     }
   }
