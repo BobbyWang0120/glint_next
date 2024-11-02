@@ -1,26 +1,25 @@
 /**
  * 移动端导航菜单组件
+ * 根据登录状态显示不同的导航选项
  */
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
+  const { user, signOut } = useAuth()
 
-  // 控制body的overflow，防止菜单打开时页面滚动
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('menu-open')
-    } else {
-      document.body.classList.remove('menu-open')
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      setIsOpen(false)
+    } catch (error) {
+      console.error('退出登录失败:', error)
     }
-
-    // 清理函数
-    return () => {
-      document.body.classList.remove('menu-open')
-    }
-  }, [isOpen])
+  }
 
   return (
     <div className="md:hidden">
@@ -54,82 +53,143 @@ export default function MobileNav() {
         </svg>
       </button>
 
-      {/* 背景遮罩 */}
-      {isOpen && (
-        <div 
-          className="mobile-nav-overlay"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
       {/* 移动端菜单 */}
-      <div 
-        className={`mobile-nav ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Navigation menu"
-      >
-        <div className="flex flex-col h-full">
-          {/* 菜单头部 */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <a href="/" className="text-2xl font-bold text-indigo-600">
-              Glint
-            </a>
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="p-2 text-gray-600 hover:text-indigo-600 transition-colors"
-              aria-label="Close menu"
-            >
-              <svg 
-                className="w-6 h-6" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-white">
+          <div className="flex flex-col h-full">
+            {/* 菜单头部 */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <Link 
+                href="/" 
+                className="text-2xl font-bold text-indigo-600"
+                onClick={() => setIsOpen(false)}
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
+                Glint
+              </Link>
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="p-2 text-gray-600 hover:text-indigo-600"
+              >
+                <svg 
+                  className="w-6 h-6" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
 
-          {/* 菜单链接 */}
-          <nav className="flex-1 px-4 py-6 overflow-y-auto">
-            <a href="/jobs" className="mobile-nav-link">
-              Find Jobs
-            </a>
-            <a href="/talent" className="mobile-nav-link">
-              Find Talent
-            </a>
-            <a href="/companies" className="mobile-nav-link">
-              Companies
-            </a>
-            <a href="/resources" className="mobile-nav-link">
-              Resources
-            </a>
-          </nav>
+            {/* 用户信息 */}
+            {user && (
+              <div className="p-4 border-b bg-gray-50">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <span className="text-indigo-600 font-medium">
+                      {user.email?.[0].toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-          {/* 登录注册按钮 */}
-          <div className="p-4 border-t space-y-4">
-            <a 
-              href="/login" 
-              className="mobile-nav-button btn-outline"
-            >
-              Login
-            </a>
-            <a 
-              href="/register" 
-              className="mobile-nav-button btn-primary"
-            >
-              Register
-            </a>
+            {/* 导航链接 */}
+            <nav className="flex-1 px-4 py-6 overflow-y-auto">
+              <div className="space-y-1">
+                <Link
+                  href="/jobs"
+                  className="block py-2.5 px-4 rounded-lg hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Find Jobs
+                </Link>
+                <Link
+                  href="/talent"
+                  className="block py-2.5 px-4 rounded-lg hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Find Talent
+                </Link>
+                <Link
+                  href="/companies"
+                  className="block py-2.5 px-4 rounded-lg hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Companies
+                </Link>
+                <Link
+                  href="/resources"
+                  className="block py-2.5 px-4 rounded-lg hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Resources
+                </Link>
+              </div>
+
+              {/* 用户相关链接 */}
+              {user ? (
+                <div className="mt-6 pt-6 border-t space-y-1">
+                  <Link
+                    href="/profile"
+                    className="block py-2.5 px-4 rounded-lg hover:bg-gray-50"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Profile Settings
+                  </Link>
+                  <Link
+                    href="/applications"
+                    className="block py-2.5 px-4 rounded-lg hover:bg-gray-50"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    My Applications
+                  </Link>
+                  <Link
+                    href="/saved-jobs"
+                    className="block py-2.5 px-4 rounded-lg hover:bg-gray-50"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Saved Jobs
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left py-2.5 px-4 rounded-lg text-red-600 hover:bg-red-50"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-6 pt-6 border-t space-y-4 px-4">
+                  <Link
+                    href="/login"
+                    className="block w-full py-2.5 text-center rounded-lg border border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="block w-full py-2.5 text-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
+            </nav>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
