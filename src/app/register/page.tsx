@@ -13,11 +13,13 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
   const { signUp } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess(false)
 
     // 验证密码
     if (password !== confirmPassword) {
@@ -35,12 +37,50 @@ export default function RegisterPage() {
 
     try {
       await signUp(email, password)
-    } catch (err) {
-      setError('注册失败，请稍后重试')
+      setSuccess(true)
+      // 不再自动跳转到登录页面，而是显示确认邮箱的提示
+    } catch (err: any) {
       console.error('注册错误:', err)
+      if (err.message === 'User already registered') {
+        setError('该邮箱已被注册')
+      } else {
+        setError('注册失败，请稍后重试')
+      }
     } finally {
       setLoading(false)
     }
+  }
+
+  // 如果注册成功，显示确认邮箱的提示
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <h2 className="text-center text-3xl font-extrabold text-gray-900">
+            Check your email
+          </h2>
+          <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="text-center">
+              <p className="text-sm text-gray-600 mb-4">
+                We sent a confirmation link to
+              </p>
+              <p className="text-lg font-medium text-gray-900 mb-4">
+                {email}
+              </p>
+              <p className="text-sm text-gray-600 mb-8">
+                Click the link in the email to confirm your account.
+              </p>
+              <Link
+                href="/login"
+                className="text-indigo-600 hover:text-indigo-500 font-medium"
+              >
+                Return to login
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -5,15 +5,9 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
-
-// 定义用户类型
-interface User {
-  id: string
-  email: string
-  role?: string
-}
+import { User, AuthError } from '@supabase/supabase-js'
+import * as supabaseClient from '@/lib/supabase'
 
 // 定义上下文类型
 interface AuthContextType {
@@ -32,40 +26,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const supabase = createClientComponentClient()
 
   // 初始化时检查用户状态
   useEffect(() => {
-    const checkUser = async () => {
+    const initAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        if (error) {
-          throw error
-        }
-
+        // 获取当前会话
+        const session = await supabaseClient.getCurrentSession()
         if (session?.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email!,
-          })
+          setUser(session.user)
         }
       } catch (error) {
-        console.error('检查用户状态失败:', error)
+        console.error('初始化认证状态失败:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    checkUser()
+    initAuth()
 
     // 监听认证状态变化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = supabaseClient.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email!,
-          })
+          setUser(session.user)
         } else {
           setUser(null)
         }
@@ -76,19 +60,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase, router])
+  }, [router])
 
   // 登录方法
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (error) throw error
-      router.push('/')
+      const { session } = await supabaseClient.signIn(email, password)
+      if (session?.user) {
+        setUser(session.user)
+        router.push('/')
+      }
     } catch (error) {
-      console.error('登录失败:', error)
+      if (error instanceof AuthError) {
+        if (error.message === 'Invalid login credentials') {
+          throw new Error('邮箱或密码错误')
+        } else if (error.message === 'Email not confirmed') {
+          throw new Error('请先确认邮箱后再登录')
+        }
+      }
       throw error
     }
   }
@@ -96,14 +85,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 注册方法
   const signUp = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      })
-      if (error) throw error
-      router.push('/login')
+      const { user, session } = await supabaseClient.signUp(email, password)
+      
+      // 注册成功后不自动登录，等待邮箱确认
+      if (user && !session) {
+        // 用户需要确认邮箱
+        return
+      }
+
+      if (session?.user) {
+        setUser(session.user)
+      }
     } catch (error) {
-      console.error('注册失败:', error)
+      if (error instanceof AuthError) {
+        if (error.message.includes('already registered')) {
+          throw new Error('User already registered')
+        }
+      }
       throw error
     }
   }
@@ -111,8 +109,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 退出登录方法
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
+      await supabaseClient.signOut()
+      setUser(null)
       router.push('/')
     } catch (error) {
       console.error('退出登录失败:', error)
