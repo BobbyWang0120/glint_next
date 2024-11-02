@@ -5,6 +5,8 @@
 import MobileNav from '@/components/MobileNav'
 import CompanyLogos from '@/components/CompanyLogos'
 import CompanyIcon from '@/components/CompanyIcon'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
 export default function Home() {
   const popularTags = ["Software Engineer", "Product Manager", "Data Scientist", "Remote Jobs"];
@@ -16,7 +18,7 @@ export default function Home() {
       location: "San Francisco, CA",
       type: ["Full-time", "Remote"],
       salary: "$150K - $200K",
-      description: "Join our team to build the next generation of search technology"
+      description: "Join our team to build next-generation cloud infrastructure and help scale Google's most critical services."
     },
     {
       title: "Product Manager",
@@ -24,7 +26,7 @@ export default function Home() {
       location: "Seattle, WA",
       type: ["Full-time", "Hybrid"],
       salary: "$130K - $180K",
-      description: "Lead product strategy for Microsoft's cloud services"
+      description: "Work on cutting-edge web applications and help shape the future of Microsoft's cloud services."
     },
     {
       title: "UI/UX Designer",
@@ -32,31 +34,13 @@ export default function Home() {
       location: "Cupertino, CA",
       type: ["Full-time", "On-site"],
       salary: "$120K - $160K",
-      description: "Create beautiful and intuitive user experiences for Apple products"
+      description: "Create beautiful and intuitive user experiences for Apple products."
     }
   ];
 
   return (
     <div className="min-h-screen">
-      {/* 导航栏 */}
-      <nav className="flex flex-col md:flex-row md:items-center justify-between px-4 md:px-6 py-4 bg-white shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <a href="/" className="text-2xl font-bold text-indigo-600">Glint</a>
-            <div className="hidden md:flex space-x-6">
-              <a href="/jobs" className="nav-link">Find Jobs</a>
-              <a href="/talent" className="nav-link">Find Talent</a>
-              <a href="/companies" className="nav-link">Companies</a>
-              <a href="/resources" className="nav-link">Resources</a>
-            </div>
-          </div>
-          <MobileNav />
-        </div>
-        <div className="hidden md:flex space-x-4">
-          <a href="/login" className="btn-outline">Login</a>
-          <a href="/register" className="btn-primary">Register</a>
-        </div>
-      </nav>
+      <Header />
 
       {/* 主搜索区域 */}
       <div className="bg-indigo-600 py-12 md:py-20 px-4 md:px-6 text-center">
@@ -109,6 +93,23 @@ export default function Home() {
               </span>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* 统计数据 */}
+      <div className="container-custom py-12 md:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          {[
+            { number: "1M+", label: "Active Jobs" },
+            { number: "500K+", label: "Companies" },
+            { number: "2M+", label: "Job Seekers" },
+            { number: "98%", label: "Success Rate" }
+          ].map(({ number, label }) => (
+            <div key={label} className="text-center">
+              <div className="stat-number mb-2">{number}</div>
+              <div className="text-gray-600 text-sm md:text-base">{label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -200,23 +201,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 统计数据 */}
-      <div className="container-custom py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-          {[
-            { number: "1M+", label: "Active Jobs" },
-            { number: "500K+", label: "Companies" },
-            { number: "2M+", label: "Job Seekers" },
-            { number: "98%", label: "Success Rate" }
-          ].map(({ number, label }) => (
-            <div key={label} className="text-center">
-              <div className="stat-number mb-2">{number}</div>
-              <div className="text-gray-600 text-sm md:text-base">{label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* 合作公司 */}
       <div className="bg-gray-50 py-12">
         <div className="container-custom">
@@ -242,6 +226,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }
