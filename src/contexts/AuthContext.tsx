@@ -8,6 +8,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { User, AuthError } from '@supabase/supabase-js'
 import * as supabaseClient from '@/lib/supabase'
+import { UserRole } from '@/lib/supabase'
 
 // 定义上下文类型
 interface AuthContextType {
@@ -15,7 +16,7 @@ interface AuthContextType {
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
-  signUp: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string, role: UserRole) => Promise<void>
 }
 
 // 创建上下文
@@ -83,18 +84,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // 注册方法
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, role: UserRole) => {
     try {
-      const { user, session } = await supabaseClient.signUp(email, password)
+      const { user: newUser, session } = await supabaseClient.signUp(email, password, role)
       
       // 注册成功后不自动登录，等待邮箱确认
-      if (user && !session) {
+      if (newUser && !session) {
         // 用户需要确认邮箱
         return
       }
 
       if (session?.user) {
         setUser(session.user)
+        // 根据角色重定向到不同的资料完善页面
+        router.push(role === 'SEEKER' ? '/onboarding/seeker' : '/onboarding/company')
       }
     } catch (error) {
       if (error instanceof AuthError) {

@@ -1,5 +1,6 @@
 /**
  * 注册页面
+ * 包含角色选择：求职者或企业
  */
 'use client'
 
@@ -7,10 +8,13 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
+type UserRole = 'SEEKER' | 'COMPANY'
+
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [role, setRole] = useState<UserRole>('SEEKER')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -36,9 +40,8 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      await signUp(email, password)
+      await signUp(email, password, role)
       setSuccess(true)
-      // 不再自动跳转到登录页面，而是显示确认邮箱的提示
     } catch (err: any) {
       console.error('注册错误:', err)
       if (err.message === 'User already registered') {
@@ -68,7 +71,7 @@ export default function RegisterPage() {
                 {email}
               </p>
               <p className="text-sm text-gray-600 mb-8">
-                Click the link in the email to confirm your account.
+                Click the link in the email to confirm your account and complete your profile.
               </p>
               <Link
                 href="/login"
@@ -108,6 +111,39 @@ export default function RegisterPage() {
                 {error}
               </div>
             )}
+
+            {/* 角色选择 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                I want to
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setRole('SEEKER')}
+                  className={`p-4 text-left rounded-lg border-2 transition-colors ${
+                    role === 'SEEKER'
+                      ? 'border-indigo-600 bg-indigo-50'
+                      : 'border-gray-200 hover:border-indigo-200'
+                  }`}
+                >
+                  <div className="font-medium mb-1">Find a job</div>
+                  <div className="text-sm text-gray-500">I'm a job seeker</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('COMPANY')}
+                  className={`p-4 text-left rounded-lg border-2 transition-colors ${
+                    role === 'COMPANY'
+                      ? 'border-indigo-600 bg-indigo-50'
+                      : 'border-gray-200 hover:border-indigo-200'
+                  }`}
+                >
+                  <div className="font-medium mb-1">Hire talent</div>
+                  <div className="text-sm text-gray-500">I'm an employer</div>
+                </button>
+              </div>
+            </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -171,7 +207,17 @@ export default function RegisterPage() {
                   loading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                {loading ? 'Creating account...' : 'Create account'}
+                {loading ? (
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating account...
+                  </div>
+                ) : (
+                  'Create account'
+                )}
               </button>
             </div>
           </form>

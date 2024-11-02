@@ -1,14 +1,8 @@
 /**
- * Prisma客户端实例
+ * Prisma客户端工具
+ * 用于数据库操作
  */
 import { PrismaClient } from '@prisma/client'
 
-declare global {
-  var prisma: PrismaClient | undefined
-}
-
-export const prisma = global.prisma || new PrismaClient()
-
-if (process.env.NODE_ENV !== 'production') {
-  global.prisma = prisma
-}
+// 创建prisma客户端实例
+export const prisma = new PrismaClient()

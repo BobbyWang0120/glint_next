@@ -1,5 +1,4 @@
-// Prisma schema
-
+// 数据库配置
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,23 +8,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 用户模型
-model User {
-  id        Int          @id @default(autoincrement())
-  email     String       @unique
-  password  String
-  role      String   // "seeker"或"employer"
-  createdAt DateTime     @default(now())
-  profile   UserProfile?
+// 用户角色枚举
+enum UserRole {
+  SEEKER  // 求职者
+  COMPANY // 企业
 }
 
-// 用户资料模型
-model UserProfile {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @unique
-  user        User     @relation(fields: [userId], references: [id])
-  name        String?
-  phone       String?
-  avatar      String?  // Supabase Storage URL
-  bio         String?  // 简介
+// 用户表
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  role      String    @default("SEEKER") // 使用字符串类型，后续再转换为枚举
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+
+  // 关联个人或企业资料
+  seekerProfile  SeekerProfile?
+  companyProfile CompanyProfile?
+}
+
+// 求职者资料
+model SeekerProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  
+  // 基本信息
+  firstName String
+  lastName  String
+  phone     String?
+  location  String?
+  avatar    String?
+  
+  // 专业信息
+  title           String?  // 职位头衔
+  yearsExperience Int?     // 工作年限
+  skills          String[] // 技能列表
+  
+  // 教育背景
+  education Education[]
+  
+  // 工作经历
+  experience WorkExperience[]
+  
+  // 个人简介
+  bio        String?
+  resumeUrl  String? // 简历文件链接
+  
+  // 求职意向
+  jobTypes   String[] // 全职、兼职等
+  industries String[] // 期望行业
+  salary     Int?     // 期望薪资
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// 企业资料
+model CompanyProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  
+  // 基本信息
+  name            String  // 公司名称
+  logo            String? // 公司logo
+  website         String?
+  industry        String
+  size            String  // 公司规模
+  founded         Int?    // 成立年份
+  
+  // 联系信息
+  phone           String?
+  email           String?
+  location        String
+  address         String?
+  
+  // 公司介绍
+  description     String
+  mission         String? // 公司使命
+  culture         String? // 公司文化
+  benefits        String[] // 员工福利
+  
+  // 社交媒体
+  linkedin        String?
+  twitter         String?
+  
+  // 认证信息
+  verified        Boolean @default(false)
+  licenseNumber   String? // 营业执照号
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// 教育经历
+model Education {
+  id        String   @id @default(uuid())
+  seekerId  String
+  seeker    SeekerProfile @relation(fields: [seekerId], references: [id])
+  
+  school    String
+  degree    String
+  field     String
+  startDate DateTime
+  endDate   DateTime?
+  gpa       Float?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// 工作经历
+model WorkExperience {
+  id          String   @id @default(uuid())
+  seekerId    String
+  seeker      SeekerProfile @relation(fields: [seekerId], references: [id])
+  
+  company     String
+  title       String
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean  @default(false)
+  description String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 }

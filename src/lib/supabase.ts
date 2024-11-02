@@ -8,6 +8,8 @@ import { createClient, AuthError } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+export type UserRole = 'SEEKER' | 'COMPANY'
+
 // 创建supabase客户端实例
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -73,14 +75,36 @@ export const signIn = async (email: string, password: string) => {
 /**
  * 注册方法
  */
-export const signUp = async (email: string, password: string) => {
+export const signUp = async (email: string, password: string, role: UserRole) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        role: role,
+      }
+    }
   })
   
   if (error) {
     throw error
+  }
+
+  // 如果注册成功，创建用户记录
+  if (data.user) {
+    const { error: profileError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: data.user.id,
+          email: data.user.email,
+          role: role,
+        }
+      ])
+
+    if (profileError) {
+      throw profileError
+    }
   }
   
   return data
