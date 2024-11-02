@@ -2,9 +2,8 @@
  * 个人信息API端点
  */
 import { NextResponse } from 'next/server'
-import { createProtectedHandler } from '../../../lib/auth'
-import { prisma } from '../../../../lib/prisma'
-import { uploadAvatar } from '../../../lib/supabase'
+import { createProtectedHandler } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 // 获取个人信息
 export const GET = (request: Request) => createProtectedHandler(async (decoded, request) => {
@@ -33,13 +32,6 @@ export const POST = (request: Request) => createProtectedHandler(async (decoded,
     const name = formData.get('name') as string
     const phone = formData.get('phone') as string
     const bio = formData.get('bio') as string
-    const avatarFile = formData.get('avatar') as File | null
-
-    let avatarUrl = null
-    if (avatarFile) {
-      // 上传到Supabase Storage
-      avatarUrl = await uploadAvatar(avatarFile)
-    }
 
     // 使用upsert确保即使用户资料不存在也能创建
     const profile = await prisma.userProfile.upsert({
@@ -47,15 +39,13 @@ export const POST = (request: Request) => createProtectedHandler(async (decoded,
       update: {
         name: name || null,
         phone: phone || null,
-        bio: bio || null,
-        ...(avatarUrl && { avatar: avatarUrl })
+        bio: bio || null
       },
       create: {
         userId: decoded.userId,
         name: name || null,
         phone: phone || null,
-        bio: bio || null,
-        avatar: avatarUrl
+        bio: bio || null
       }
     })
 

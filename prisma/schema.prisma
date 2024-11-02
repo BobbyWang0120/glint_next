@@ -11,11 +11,11 @@ datasource db {
 
 // 用户模型
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int          @id @default(autoincrement())
+  email     String       @unique
   password  String
   role      String   // "seeker"或"employer"
-  createdAt DateTime @default(now())
+  createdAt DateTime     @default(now())
   profile   UserProfile?
 }
 
